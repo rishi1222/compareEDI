@@ -60,7 +60,7 @@ public class InstReducer<TKey, TValue> extends Reducer<TKey, QuadWritable, TKey,
             }
         }
 
-        String queryString = "SELECT *\n" +
+        String queryString = "DESCRIBE *\n" +
                 "{\n" +
                 "    { ?s ?p ?o }\n" +
                 "}";
@@ -71,55 +71,14 @@ public class InstReducer<TKey, TValue> extends Reducer<TKey, QuadWritable, TKey,
         try{
             QueryExecution qexec = QueryExecutionFactory.create(query, model);
             ResultSet results = qexec.execSelect();
-            //ResultSetFormatter.out(results);
+             //ResultSetFormatter.out(results);
             for ( ; results.hasNext() ; )
             {
                 QuerySolution soln = results.nextSolution() ;
+                System.out.println(soln.toString());
+        }
+    }catch(Exception ex){};
 
-
-//                System.out.println(soln.toString());
-//
-//
-//
-//                StringBuilder sb = new StringBuilder();
-//                sb.append(format(soln.get("langId").asNode())).append(';').append(format(soln.get("activeFrom").asNode())).append(';');
-//
-//                RDFNode baseLanguageId =  soln.get("baseLanguageId");
-//                if(baseLanguageId == null)
-//                {
-//                    sb.append(("None")).append(';');
-//                }else
-//                {
-//                    sb.append(format(soln.get("baseLanguageId").asNode())).append(';');
-//                }
-//
-//                RDFNode languageGeographyId = soln.get("languageGeographyId");
-//                if(languageGeographyId == null)
-//                {
-//                    sb.append("None").append(';');
-//                }else
-//                {
-//                    sb.append(format(soln.get("languageGeographyId").asNode())).append(';');
-//                }
-//                sb.append(format(soln.get("languageUniqueName").asNode())).append(';');
-//                RDFNode languageScriptId = soln.get("languageScriptId");
-//                if(languageScriptId == null)
-//                {
-//                    sb.append(("None")).append(';');
-//                }else{
-//
-//                    sb.append(format(soln.get("languageScriptId").asNode())).append(';');
-//                }
-//
-//                ;
-//
-//                String output = sb.toString();
-//                output = output.replace('"',' ');
-//                multipleOutputs.write("Lang", null, new Text(output.trim()));
-//                //context.write(key, new Text(output));
-//                System.out.println(output);
-            }
-        }catch(Exception ex){};
 
         String queryString1 = "prefix ont: <http://ont.thomsonreuters.com/>\n" +
                 "prefix md: <http://EquitiesDerivativesAndFundsQuote.schemas.financial.thomsonreuters.com/2014-01-01/>\n" +
@@ -168,7 +127,7 @@ public class InstReducer<TKey, TValue> extends Reducer<TKey, QuadWritable, TKey,
                 "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
                 "prefix go: <http://ld.test.data.thomsonreuters.com/>\n" +
                 "prefix co: <http://data.schemas.financial.thomsonreuters.com/Common/2009-09-01/>\n" +
-                "SELECT ?instrumentId ?instrumentAssetClassId ?value ?effectiveFrom ?effectiveTo ?effectiveFromNACode ?effectiveToNACode ?objectTypeId\n" +
+                "SELECT ?instrumentId ?instrumentAssetClass ?value ?effectiveFrom ?effectiveTo ?effectiveFromNACode ?effectiveToNACode ?objectTypeId\n" +
                 "\n" +
                 "WHERE {\n" +
                 "\t?x rdf:type <http://EquitiesDerivativesAndFundsQuote.schemas.financial.thomsonreuters.com/2014-01-01/Instrument> .\n" +
@@ -203,6 +162,16 @@ public class InstReducer<TKey, TValue> extends Reducer<TKey, QuadWritable, TKey,
                 }else
                 {
                     sb.append(format(soln.get("value").asNode())).append(';');
+                }
+
+
+                RDFNode instrumentAssetClass = soln.get("instrumentAssetClass");
+                if(instrumentAssetClass == null)
+                {
+                    sb.append(("None")).append(';');
+                }else
+                {
+                    sb.append(format(soln.get("instrumentAssetClass").asNode())).append(';');
                 }
 
                 RDFNode effectiveFrom =  soln.get("effectiveFrom");
@@ -241,7 +210,7 @@ public class InstReducer<TKey, TValue> extends Reducer<TKey, QuadWritable, TKey,
                     sb.append(format(soln.get("effectiveToNACode").asNode())).append(';');
                 }
                 RDFNode objectTypeId = soln.get("objectTypeId");
-                if(effectiveToNACode == null)
+                if(objectTypeId == null)
                 {
                     sb.append(("None")).append(';');
                 }else{
@@ -436,6 +405,93 @@ public class InstReducer<TKey, TValue> extends Reducer<TKey, QuadWritable, TKey,
                 String output = sb.toString();
                 output = output.replace('"',' ');
                 multipleOutputs.write("InstrumentStatus", null, new Text(output.trim()));
+                //context.write(key, new Text(output));
+                //System.out.println(output);
+            }
+        }catch(Exception ex){};
+
+        String queryString5 = "prefix ont: <http://ont.thomsonreuters.com/>\n" +
+                "prefix md: <http://EquitiesDerivativesAndFundsQuote.schemas.financial.thomsonreuters.com/2014-01-01/>\n" +
+                "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+                "prefix go: <http://ld.test.data.thomsonreuters.com/>\n" +
+                "prefix xml: <xml>\n"+
+                "SELECT ?instrumentId ?davRcsAssetClass ?value ?effectiveFrom ?effectiveTo ?effectiveFromNACode ?effectiveToNACode \n" +
+                "\n" +
+                "WHERE {\n" +
+                "\t?x rdf:type <http://EquitiesDerivativesAndFundsQuote.schemas.financial.thomsonreuters.com/2014-01-01/Instrument> .\n" +
+                "\t?x ont:permId ?instrumentId .\n" +
+                "\t?x md:davRcsAssetClass ?davRcsAssetClass .\n" +
+                "\t?davRcsAssetClass rdf:value ?value.\n" +
+                "\tOPTIONAL{?davRcsAssetClass md:effectiveFrom ?effectiveFrom} .\n" +
+                "\tOPTIONAL{?davRcsAssetClass md:effectiveTo ?effectiveTo} .\n" +
+                "\tOPTIONAL{?davRcsAssetClass md:effectiveFromNACode ?effectiveFromNACode} .\n" +
+                "\tOPTIONAL{?davRcsAssetClass md:effectiveToNACode ?effectiveToNACode} .\n" +
+                //"\t?geotype md:geographyType ?geoVal .\n" +
+                "}\n";
+
+
+        Query query5 = QueryFactory.create(queryString5);
+        try{
+            QueryExecution qexec = QueryExecutionFactory.create(query5, model);
+            ResultSet results = qexec.execSelect();
+            //ResultSetFormatter.out(results);
+            for ( ; results.hasNext() ; )
+            {
+                //                System.out.println(soln.toString());
+
+
+                QuerySolution soln = results.nextSolution() ;
+                StringBuilder sb = new StringBuilder();
+                sb.append(format(soln.get("instrumentId").asNode())).append(';');
+
+                RDFNode value = soln.get("value");
+                if(value == null)
+                {
+                    sb.append(("None")).append(';');
+                }else
+                {
+                    sb.append(format(soln.get("value").asNode())).append(';');
+                }
+
+                RDFNode effectiveFrom =  soln.get("effectiveFrom");
+                if(effectiveFrom == null)
+                {
+                    sb.append(("None")).append(';');
+                }else
+                {
+                    sb.append(format(soln.get("effectiveFrom").asNode())).append(';');
+                }
+
+                RDFNode effectiveTo = soln.get("effectiveTo");
+                if(effectiveTo == null)
+                {
+                    sb.append("None").append(';');
+                }else
+                {
+                    sb.append(format(soln.get("effectiveTo").asNode())).append(';');
+                }
+
+                RDFNode effectiveFromNACode = soln.get("effectiveFromNACode");
+                if(effectiveFromNACode == null)
+                {
+                    sb.append(("None")).append(';');
+                }else{
+
+                    sb.append(format(soln.get("effectiveFromNACode").asNode())).append(';');
+                }
+
+                RDFNode effectiveToNACode = soln.get("effectiveToNACode");
+                if(effectiveToNACode == null)
+                {
+                    sb.append(("None")).append(';');
+                }else{
+
+                    sb.append(format(soln.get("effectiveToNACode").asNode())).append(';');
+                };
+
+                String output = sb.toString();
+                output = output.replace('"',' ');
+                multipleOutputs.write("DavRcsAssetClass", null, new Text(output.trim()));
                 //context.write(key, new Text(output));
                 //System.out.println(output);
             }

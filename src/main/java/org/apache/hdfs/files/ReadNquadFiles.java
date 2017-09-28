@@ -3,15 +3,10 @@ package org.apache.hdfs.files;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.permission.FsAction;
-import org.apache.hadoop.fs.permission.FsPermission;
-import org.apache.hadoop.security.SaslRpcServer;
 import org.apache.hadoop.security.UserGroupInformation;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.security.PrivilegedAction;
 
@@ -32,7 +27,7 @@ public class ReadNquadFiles {
 
             Configuration conf = new Configuration(true);
 
-            conf.addResource(new Path(getClass().getClassLoader().getResource("./HDFS_CONFIG/core-site.xml").toURI()));
+            conf.addResource(new Path(getClass().getClassLoader().getResource("core-site.xml").toURI()));
             conf.addResource(new Path(getClass().getClassLoader().getResource("./HDFS_CONFIG/hdfs-site.xml").toURI()));
 
             //conf.addResource(new Path(getClass().getClassLoader().getResource("core-site.xml").toURI()));
@@ -75,7 +70,7 @@ public class ReadNquadFiles {
                 fos = null;
                 try {
 
-                    conf.addResource(new Path(getClass().getClassLoader().getResource("./HDFS_CONFIG/core-site.xml").toURI()));
+                    conf.addResource(new Path(getClass().getClassLoader().getResource("core-site.xml").toURI()));
                     conf.addResource(new Path(getClass().getClassLoader().getResource("./HDFS_CONFIG/hdfs-site.xml").toURI()));
 
                     //uri = new URI("hdfs://c995xyn.int.westgroup.com:8020/");
@@ -127,7 +122,7 @@ public class ReadNquadFiles {
                 fos = null;
                 try {
 
-                    conf.addResource(new Path(getClass().getClassLoader().getResource("./HDFS_CONFIG/core-site.xml").toURI()));
+                    conf.addResource(new Path(getClass().getClassLoader().getResource("core-site.xml").toURI()));
                     conf.addResource(new Path(getClass().getClassLoader().getResource("./HDFS_CONFIG/hdfs-site.xml").toURI()));
 
                     //uri = new URI("hdfs://c995xyn.int.westgroup.com:8020/");
@@ -172,7 +167,7 @@ public class ReadNquadFiles {
 
                 try {
 
-                    conf.addResource(new Path(getClass().getClassLoader().getResource("./HDFS_CONFIG/core-site.xml").toURI()));
+                    conf.addResource(new Path("/src/main/resources/HDFS_CONFIG/core-site.xml"));
                     conf.addResource(new Path(getClass().getClassLoader().getResource("./HDFS_CONFIG/hdfs-site.xml").toURI()));
                 } catch (Exception e) {
                     e.printStackTrace();

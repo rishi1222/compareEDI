@@ -23,6 +23,8 @@ package org.apache.jena.service;
 // Imports
 ///////////////
         import org.apache.commons.cli.*;
+        import org.apache.hadoop.conf.Configured;
+        import org.apache.hadoop.util.Tool;
         import org.slf4j.Logger;
         import org.slf4j.LoggerFactory;
 
@@ -30,8 +32,8 @@ package org.apache.jena.service;
  * <p>Base file for <em>Getting Started</em> examples. A place to put shared
  * implementation, constants, etc.</p>
  */
-public abstract class Base
-        implements Runnable
+public abstract class Base extends Configured
+        implements Tool
 {
     /***********************************/
     /* Constants                       */

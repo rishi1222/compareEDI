@@ -16,11 +16,9 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hdfs.files.ReadNquadFiles;
-import org.apache.jena.service.Base;
-import org.apache.jena.hadoop.rdf.io.RdfIOConstants;
 import org.apache.jena.hadoop.rdf.io.input.nquads.NQuadsInputFormat;
 import org.apache.jena.hadoop.rdf.types.QuadWritable;
+import org.apache.jena.service.Base;
 
 import java.security.PrivilegedAction;
 
@@ -30,13 +28,7 @@ import java.security.PrivilegedAction;
  */
 public class ParseInstRdf extends Base {
 
-
-
-
-
-    public void run()
-
-    {
+    public int run(String[] args) throws Exception {
         UserGroupInformation userGroupInformation = UserGroupInformation.createRemoteUser("platform");
         System.out.println("the user group information " + userGroupInformation.toString());
         Integer i = userGroupInformation.doAs(new PrivilegedAction<Integer>(){
@@ -45,63 +37,108 @@ public class ParseInstRdf extends Base {
 
             public Integer run() {
 
+                Integer returnValue;
+                returnValue =1;
 
-                ReadNquadFiles inoutFile = new ReadNquadFiles();
-                //Configuration conf = new Configuration();
+
                 try {
                     Configuration conf = new Configuration();
-                    conf.addResource(new Path(getClass().getClassLoader().getResource("./HDFS_CONFIG/core-site.xml").toURI()));
-                    conf.addResource(new Path(getClass().getClassLoader().getResource("./HDFS_CONFIG/hdfs-site.xml").toURI()));
+
+
+                    conf.set("xmlinput.start","<Quote>");
+                    conf.set("xmlinput.end","</Quote>");
+                    conf.set("fs.defaultFS", "hdfs://Venus");
+                    conf.set("dfs.nameservices","Venus");
+                    conf.set("dfs.client.failover.proxy.provider.Venus","org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider");
+                    conf.set("dfs.ha.automatic-failover.enabled.Venus","true");
+                    conf.set("dfs.ha.namenodes.Venus","namenode263,namenode261");
+                    conf.set("dfs.namenode.rpc-address.Venus.namenode263","c149jub.int.westgroup.com:8020");
+                    conf.set("dfs.namenode.servicerpc-address.Venus.namenode263","c149jub.int.westgroup.com:8022");
+                    conf.set("dfs.namenode.http-address.Venus.namenode263","c149jub.int.westgroup.com:50070");
+                    conf.set("dfs.namenode.https-address.Venus.namenode263","c149jub.int.westgroup.com:50470");
+                    conf.set("dfs.namenode.rpc-address.Venus.namenode261","c321shu.int.westgroup.com:8020");
+                    conf.set("dfs.namenode.servicerpc-address.Venus.namenode261","c321shu.int.westgroup.com:8022");
+                    conf.set("dfs.namenode.http-address.Venus.namenode261","c321shu.int.westgroup.com:50070");
+                    conf.set("dfs.namenode.https-address.Venus.namenode261","c321shu.int.westgroup.com:50470");
+                    conf.set("mapreduce.map.output.compress","true");
+                    conf.set("mapreduce.map.memory.mb","4096");
+                    conf.set("mapreduce.reduce.memory.mb","4096");
+                    conf.set("mapreduce.reduce.java.opts","-Djava.net.preferIPv4Stack=true -Xmx3543348019");
+                    conf.set("mapreduce.map.java.opts","-Djava.net.preferIPv4Stack=true -Xmx3543348019");
+                   // conf.set(HadoopIOConstants.IO_COMPRESSION_CODECS, BZip2Codec.class.getCanonicalName());
+                    conf.set("mapreduce.map.output.compress.codec","org.apache.hadoop.io.compress.SnappyCodec");
+                    conf.set("fs.hdfs.impl",
+                            org.apache.hadoop.hdfs.DistributedFileSystem.class.getName()
+                    );
+                    conf.set("fs.file.impl",
+                            org.apache.hadoop.fs.LocalFileSystem.class.getName()
+                    );
+
+
                     FileSystem fs = FileSystem.get(conf);
-                    Path hdfsfilePath = inoutFile.getinfile("/ingest/cmp/output/20151214-IQM-part2-rdf");
-                    Path hdfsoutPath = inoutFile.writeBytes("/rishi_langRdf/");
+
+                    Path hdfsfilePath = new Path("/user/platform/ingest/cmp/output/rishi_iqm/Instrument_Full.nq");
+                    Path hdfsoutPath = new Path("/user/platform/rishi_langRdf_new/");
+
 
                     if (fs.exists(hdfsoutPath)) {
                         fs.delete(hdfsoutPath, true);
                     }
 
 
-
-                    System.out.println("INPUT FILE PATH " + hdfsfilePath);
-                    System.out.println("OUTPUT FILE PATH " + hdfsoutPath);
-
-
                     Job job = new org.apache.hadoop.mapreduce.Job(conf);
 
-                    FileInputFormat.addInputPath(job, hdfsfilePath);
-                    FileOutputFormat.setOutputPath(job, hdfsoutPath);
+
+
+
+                    System.out.println("Filesystem URI : " + fs.getUri());
+                    System.out.println("Filesystem Home Directory : " + fs.getHomeDirectory());
+                    System.out.println("Filesystem Working Directory : " + fs.getWorkingDirectory());
+                    System.out.println("HDFS File Path : " + hdfsfilePath);
+                    System.out.println("HDFS File Path : " + hdfsoutPath);
 
 
             // This is necessary as otherwise Hadoop won't ship the JAR to all
             // nodes and you'll get ClassDefNotFound and similar errors
-            job.getConfiguration().setBoolean(RdfIOConstants.INPUT_IGNORE_BAD_TUPLES, false);
+            //job.getConfiguration().setBoolean(RdfIOConstants.INPUT_IGNORE_BAD_TUPLES, false);
             job.getConfiguration().setInt(NLineInputFormat.LINES_PER_MAP, 900000);
-            job.getConfiguration().setInt(RdfIOConstants.OUTPUT_BATCH_SIZE, 25000);
+            //job.getConfiguration().setInt(RdfIOConstants.OUTPUT_BATCH_SIZE, 25000);
+
             job.setJarByClass(ParseInstRdf.class);
-            System.out.println("User is :" + job.getUser());
 
             // Give our job a friendly name
-            job.setJobName("RDFparsing");
-            job.setMapOutputKeyClass(Text.class);
-            job.setMapOutputValueClass(QuadWritable.class);
+            job.setJobName("ParseInstRdf");
+            //job.setNumReduceTasks(5);
 
+            // Map and the output generated by mapper
             job.setMapperClass(InstMapper.class);
-            job.setReducerClass(InstReducer.class);
+                job.setMapOutputKeyClass(Text.class);
+                job.setMapOutputValueClass(QuadWritable.class);
 
+            // Reduce and the output generated by Reducer
+            job.setReducerClass(InstReducer.class);
+                    job.setOutputKeyClass(Text.class);
+                    job.setOutputValueClass(Text.class);
+
+
+            // Input and Output
             job.setInputFormatClass(NQuadsInputFormat.class);
             job.setOutputFormatClass(TextOutputFormat.class);
+                    FileInputFormat.addInputPath(job, hdfsfilePath);
+                    FileOutputFormat.setOutputPath(job, hdfsoutPath);
+
+
 
 
             MultipleOutputs.addNamedOutput(job, "Instrument", TextOutputFormat.class, Text.class, Text.class);
             MultipleOutputs.addNamedOutput(job, "InstrumentAssetClassId", TextOutputFormat.class, Text.class, Text.class);
             MultipleOutputs.addNamedOutput(job, "InstrumentCommonName", TextOutputFormat.class, Text.class, Text.class);
             MultipleOutputs.addNamedOutput(job, "InstrumentStatus", TextOutputFormat.class, Text.class, Text.class);
+            MultipleOutputs.addNamedOutput(job, "DavRcsAssetClass", TextOutputFormat.class, Text.class, Text.class);
 
 
-            job.setOutputKeyClass(Text.class);
-            job.setOutputValueClass(Text.class);
 
-                    int returnValue = job.waitForCompletion(true) ? 0 : 1;
+                    returnValue = job.waitForCompletion(true) ? 0 : 1;
                     fs.setPermission(hdfsoutPath, new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL));
 
 
@@ -109,19 +146,19 @@ public class ParseInstRdf extends Base {
                     System.out.println(returnValue);
                     //fs.deleteOnExit(outPut);
 
-                    return returnValue;
-
                 } catch (Exception ex) {
 
                     ex.printStackTrace();
                 }
-                return 0;
+                return returnValue;
             }
 
         });
 
+        return i;
+
     }
 
 
-}
 
+}

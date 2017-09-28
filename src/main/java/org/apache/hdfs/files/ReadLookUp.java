@@ -27,7 +27,7 @@ public class ReadLookUp {
 
             Configuration conf = new Configuration(true);
 
-            conf.addResource(new Path(getClass().getClassLoader().getResource("./HDFS_CONFIG/core-site.xml").toURI()));
+            conf.addResource(new Path(getClass().getClassLoader().getResource("core-site.xml").toURI()));
             conf.addResource(new Path(getClass().getClassLoader().getResource("./HDFS_CONFIG/hdfs-site.xml").toURI()));
 
             //conf.addResource(new Path(getClass().getClassLoader().getResource("core-site.xml").toURI()));
@@ -69,7 +69,7 @@ public class ReadLookUp {
                 fos = null;
                 try {
 
-                    conf.addResource(new Path(getClass().getClassLoader().getResource("./HDFS_CONFIG/core-site.xml").toURI()));
+                    conf.addResource(new Path(getClass().getClassLoader().getResource("core-site.xml").toURI()));
                     conf.addResource(new Path(getClass().getClassLoader().getResource("./HDFS_CONFIG/hdfs-site.xml").toURI()));
 
                     //uri = new URI("hdfs://c995xyn.int.westgroup.com:8020/");

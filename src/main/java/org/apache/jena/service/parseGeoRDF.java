@@ -2,9 +2,8 @@ package org.apache.jena.service;
 
 // Imports
 ///////////////
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.hdfs.files.ReadNquadFiles;
-import org.apache.jena.instrument.ParseInstRdf;
-import org.apache.jena.quote.ParseQuoteRdf;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
@@ -13,9 +12,6 @@ import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFCountingBase;
 import org.apache.jena.riot.system.StreamRDFWrapper;
 import org.apache.jena.riot.writer.WriterStreamRDFFlat;
-import org.apache.sax.instParser.ParseInstXml;
-import org.apache.sax.parser.XmlParsing;
-import org.apache.sax.quoteParser.ParseQuoteXml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +46,8 @@ public class parseGeoRDF extends Base {
     private static final Logger log = LoggerFactory.getLogger(parseGeoRDF.class);
     private static final Lang TURTLE = RDFLanguages.TURTLE;
 
+    int returnCode;
+
     /***********************************/
     /* Instance variables              */
     /***********************************/
@@ -65,17 +63,35 @@ public class parseGeoRDF extends Base {
     /**
      * @param args
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
+
+        int exitCode;
+
+        exitCode = ToolRunner.run(new parseGeoRDF(), args);
+
+        System.exit(exitCode);
+
+    }
+
+    public int run(String[] args) throws Exception {
+
+        System.err.printf("Usage: %s [generic options] <input> <output>\n",
+                getClass().getSimpleName());
+        ToolRunner.printGenericCommandUsage(System.err);
+       // returnCode = ToolRunner.run(new org.apache.sax.instParser.ParseInstXml(), args);
+        //returnCode = ToolRunner.run(new org.apache.sax.quoteParser.ParseQuoteXml(), args);
+        returnCode = ToolRunner.run(new org.apache.jena.instrument.ParseInstRdf(),args);
         //new LookUpParser().setArgs(args).run();
-       // new parseGeoRDF().setArgs(args).run();
-        //new XmlParsing().setArgs(args).run();
-        //new ParseInstXml().setArgs(args).run();
-        new ParseQuoteXml().setArgs(args).run();
+        //new parseGeoRDF().setArgs(args).run();
+        //new org.apache.sax.parser.ParseQuoteXml().setArgs(args).run();
+        //new org.apache.sax.quoteParse.ParseQuoteXml().setArgs(args).run();
+        // new org.apache.sax.instParser.ParseInstXml().setArgs(args).run();
+        //new ParseRdfMpRd().setArgs(args).run();
         //new ParseQuoteRdf().setArgs(args).run();
         //new ParseInstRdf().setArgs(args).run();
         //new HiveJdbcClient().setArgs(args).run();
         //new compareTextFiles().setArgs(args).run();
-
+        return returnCode;
     }
 
     public void run() {

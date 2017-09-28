@@ -22,7 +22,7 @@ public class HiveJdbcClient extends Base {
     private static String driverName = "org.apache.hive.jdbc.HiveDriver";
 
 
-    public void run() {
+    public int run(String[] args) throws Exception {
 
         try {
             try {
@@ -224,7 +224,7 @@ public class HiveJdbcClient extends Base {
                    e.printStackTrace();
               }
 
-
+        return 0;
         }
     }
 

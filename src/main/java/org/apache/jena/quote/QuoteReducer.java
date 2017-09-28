@@ -54,7 +54,7 @@ public class QuoteReducer<TKey, TValue> extends Reducer<TKey, QuadWritable, TKey
             if (object.isLiteral()) {
                 model.add(model.createStatement(model.createResource(quad.getSubject().toString()), model.createProperty(quad.getPredicate().toString()), model.createLiteral(quad.getObject().toString())));
             } else {
-                model.add(model.createStatement(model.createResource(quad.getSubject().toString()), model.createProperty(quad.getPredicate().toString()), model.createResource(quad.getObject().toString())));
+                model.add(model.createStatement(model.createResource(quad.getSubject().toString()), model.createProperty(quad.getPredicate().toString()), model.createResource(quad.getObject().toString(), model.createResource(quad.getGraph().toString()))));
             }
         }
 
