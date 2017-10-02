@@ -1,0 +1,5 @@
+src/main/resources/RDF_DATA
+src/main/resources/XML_DATA
+.idea/
+*.iml
+target/
